@@ -26,10 +26,35 @@ CATEGORY_KEYWORDS = {
 
 
 def allowed_file(filename: str) -> bool:
+    """Check if uploaded file has an allowed extension.
+    
+    Args:
+        filename: The name of the uploaded file.
+    
+    Returns:
+        True if file extension is in ALLOWED_EXTENSIONS, False otherwise.
+    """
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 def analyze_expenses(csv_path: str, static_folder: str) -> Dict:
+    """Analyze expense CSV file and generate comprehensive report.
+    
+    Processes CSV file, auto-categorizes transactions, generates charts,
+    and returns insights about spending patterns.
+    
+    Args:
+        csv_path: Path to the uploaded CSV file.
+        static_folder: Path to static folder for storing generated charts.
+    
+    Returns:
+        Dictionary containing analysis results including spending totals,
+        category breakdowns, monthly trends, and insights.
+    
+    Raises:
+        ValueError: If CSV is missing required columns.
+        Exception: If file processing fails.
+    """
     frame = load_and_clean_data(csv_path)
     frame = auto_categorize(frame)
 
@@ -76,6 +101,20 @@ def analyze_expenses(csv_path: str, static_folder: str) -> Dict:
 
 
 def load_and_clean_data(csv_path: str) -> pd.DataFrame:
+    """Load and validate CSV data with data cleaning.
+    
+    Validates required columns, handles missing values, removes invalid entries,
+    and ensures data types are correct.
+    
+    Args:
+        csv_path: Path to the CSV file.
+    
+    Returns:
+        Cleaned DataFrame with validated date, amount, description, and category columns.
+    
+    Raises:
+        ValueError: If required columns are missing from CSV.
+    """
     frame = pd.read_csv(csv_path)
 
     frame.columns = [column.strip().lower() for column in frame.columns]
@@ -101,6 +140,17 @@ def load_and_clean_data(csv_path: str) -> pd.DataFrame:
 
 
 def auto_categorize(frame: pd.DataFrame) -> pd.DataFrame:
+    """Auto-categorize transactions based on description keywords.
+    
+    Infers missing categories by matching transaction descriptions
+    against predefined keyword lists. Uncategorized items default to 'Other'.
+    
+    Args:
+        frame: DataFrame with transaction data.
+    
+    Returns:
+        DataFrame with categorized transactions.
+    """
     frame = frame.copy()
 
     def infer_category(row: pd.Series) -> str:
@@ -118,12 +168,28 @@ def auto_categorize(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def build_monthly_trend(frame: pd.DataFrame) -> pd.DataFrame:
+    """Aggregate spending by month for trend analysis.
+    
+    Args:
+        frame: DataFrame with transaction data.
+    
+    Returns:
+        DataFrame with monthly totals sorted by month.
+    """
     trend = frame.copy()
     trend["month"] = trend["date"].dt.to_period("M").astype(str)
     return trend.groupby("month", as_index=False)["amount"].sum().sort_values("month")
 
 
 def detect_wasteful_spending(frame: pd.DataFrame) -> pd.DataFrame:
+    """Identify top spending categories above median threshold.
+    
+    Args:
+        frame: DataFrame with categorized transaction data.
+    
+    Returns:
+        DataFrame with top 3 categories above median threshold.
+    """
     category_totals = frame.groupby("category", as_index=False)["amount"].sum()
     if category_totals.empty:
         return category_totals
@@ -134,6 +200,15 @@ def detect_wasteful_spending(frame: pd.DataFrame) -> pd.DataFrame:
 
 
 def generate_insights(frame: pd.DataFrame, category_breakdown: pd.DataFrame) -> List[str]:
+    """Generate actionable spending insights from expense data.
+    
+    Args:
+        frame: Complete transaction DataFrame.
+        category_breakdown: Category totals from analysis.
+    
+    Returns:
+        List of up to 4 insight strings with spending recommendations.
+    """
     insights: List[str] = []
 
     if category_breakdown.empty:
@@ -161,6 +236,12 @@ def generate_insights(frame: pd.DataFrame, category_breakdown: pd.DataFrame) -> 
 
 
 def create_category_chart(category_breakdown: pd.DataFrame, output_path: str) -> None:
+    """Generate and save category spending bar chart.
+    
+    Args:
+        category_breakdown: DataFrame with category totals.
+        output_path: Path where chart PNG will be saved.
+    """
     plt.figure(figsize=(9, 5))
     categories = category_breakdown["category"].astype(str).tolist()
     amounts = category_breakdown["amount"].astype(float).tolist()
@@ -175,6 +256,12 @@ def create_category_chart(category_breakdown: pd.DataFrame, output_path: str) ->
 
 
 def create_monthly_chart(monthly_trend: pd.DataFrame, output_path: str) -> None:
+    """Generate and save monthly spending trend line chart.
+    
+    Args:
+        monthly_trend: DataFrame with monthly totals.
+        output_path: Path where chart PNG will be saved.
+    """
     plt.figure(figsize=(9, 5))
     months = monthly_trend["month"].astype(str).tolist()
     amounts = monthly_trend["amount"].astype(float).tolist()
