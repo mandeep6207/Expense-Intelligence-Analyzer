@@ -3,8 +3,12 @@ import logging
 from datetime import datetime
 
 from flask import Flask, render_template, request, url_for
+from dotenv import load_dotenv
 
 from utils.analysis import analyze_expenses, allowed_file
+
+# Load environment variables from .env file
+load_dotenv()
 
 # Configure logging
 logging.basicConfig(
