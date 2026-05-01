@@ -219,6 +219,36 @@ def detect_wasteful_spending(frame: pd.DataFrame) -> pd.DataFrame:
     return wasteful.head(3)
 
 
+def calculate_savings_potential(wasteful_spending: pd.DataFrame, reduction_percent: float = 0.15) -> Dict[str, float]:
+    """Calculate potential monthly savings from reducing top spending categories.
+    
+    Args:
+        wasteful_spending: DataFrame with top wasteful categories.
+        reduction_percent: Target percentage reduction (default 15%).
+    
+    Returns:
+        Dictionary with savings amounts per category and total.
+    """
+    if wasteful_spending.empty:
+        return {"total_savings": 0.0, "categories": {}}
+    
+    savings_breakdown = {}
+    total_savings = 0.0
+    
+    for _, row in wasteful_spending.iterrows():
+        category = str(row["category"])
+        amount = float(row["amount"])
+        savings = amount * reduction_percent
+        savings_breakdown[category] = round(savings, 2)
+        total_savings += savings
+    
+    return {
+        "total_savings": round(total_savings, 2),
+        "categories": savings_breakdown,
+        "reduction_percentage": reduction_percent
+    }
+
+
 def generate_insights(frame: pd.DataFrame, category_breakdown: pd.DataFrame) -> List[str]:
     """Generate actionable spending insights from expense data.
     
