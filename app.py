@@ -1,6 +1,7 @@
 import os
 import logging
 from datetime import datetime
+import time
 
 from flask import Flask, render_template, request, url_for
 from dotenv import load_dotenv
@@ -86,8 +87,10 @@ def internal_server_error(error):
 def index():
     report = None
     error = None
+    execution_time = None
 
     if request.method == "POST":
+        start_time = time.time()
         uploaded_file = request.files.get("file")
         if not uploaded_file or uploaded_file.filename == "":
             error = "Please choose a CSV file to analyze."
@@ -103,7 +106,8 @@ def index():
             logger.info(f"File uploaded successfully: {safe_name}")
             try:
                 report = analyze_expenses(upload_path, static_folder=STATIC_FOLDER)
-                logger.info(f"Analysis completed for {safe_name}")
+                execution_time = round(time.time() - start_time, 2)
+                logger.info(f"Analysis completed for {safe_name} in {execution_time}s")
             except Exception as exc:  # pragma: no cover - surfaced to UI
                 error = f"Unable to analyze the file: {exc}"
                 logger.error(f"Analysis failed for {safe_name}: {exc}", exc_info=True)
@@ -112,6 +116,7 @@ def index():
         "index.html",
         report=report,
         error=error,
+        execution_time=execution_time,
         chart_base=url_for("static", filename="charts"),
     )
 
