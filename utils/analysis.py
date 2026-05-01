@@ -52,7 +52,8 @@ def analyze_expenses(csv_path: str, static_folder: str) -> Dict:
         category breakdowns, monthly trends, and insights.
     
     Raises:
-        ValueError: If CSV is missing required columns.
+        ValueError: If CSV is missing required columns or has no valid data.
+        FileNotFoundError: If CSV file does not exist.
         Exception: If file processing fails.
     """
     frame = load_and_clean_data(csv_path)
@@ -114,8 +115,17 @@ def load_and_clean_data(csv_path: str) -> pd.DataFrame:
     
     Raises:
         ValueError: If required columns are missing from CSV.
+        FileNotFoundError: If CSV file does not exist.
     """
-    frame = pd.read_csv(csv_path)
+    if not os.path.exists(csv_path):
+        raise FileNotFoundError(f"CSV file not found at: {csv_path}")
+    
+    try:
+        frame = pd.read_csv(csv_path)
+    except pd.errors.EmptyDataError:
+        raise ValueError("CSV file is empty")
+    except Exception as exc:
+        raise ValueError(f"Failed to read CSV file: {exc}")
 
     frame.columns = [column.strip().lower() for column in frame.columns]
     required_columns = {"date", "amount", "description"}
@@ -131,10 +141,20 @@ def load_and_clean_data(csv_path: str) -> pd.DataFrame:
     frame["description"] = frame["description"].fillna("").astype(str)
     frame["category"] = frame["category"].fillna("").astype(str)
 
+    # Log rows with invalid dates or amounts
+    invalid_rows = frame[frame["date"].isna() | frame["amount"].isna()]
+    if not invalid_rows.empty:
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f"Dropping {len(invalid_rows)} rows with invalid date or amount")
+
     frame = frame.dropna(subset=["date", "amount"])
     frame = frame[frame["amount"] > 0].copy()
     frame["category"] = frame["category"].str.strip()
     frame["description"] = frame["description"].str.strip()
+
+    if frame.empty:
+        raise ValueError("No valid expense records found in CSV after validation")
 
     return frame
 
