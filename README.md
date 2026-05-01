@@ -50,6 +50,18 @@ A lightweight Flask web application that analyzes personal expense data from CSV
 
 6. Open your browser and visit: `http://localhost:5000`
 
+## Testing with Sample Data
+
+A sample CSV file is included for quick testing:
+
+```bash
+# Simply upload the sample_expenses.csv file in the web interface
+# Or test the API directly:
+curl -F "file=@sample_expenses.csv" http://localhost:5000/
+```
+
+The sample file contains 31 days of realistic expense data across various categories.
+
 ## CSV Format
 
 The analyzer expects a CSV file with the following columns:
