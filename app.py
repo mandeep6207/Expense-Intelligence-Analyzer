@@ -31,6 +31,12 @@ app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 app.config["MAX_CONTENT_LENGTH"] = 16 * 1024 * 1024
 
 
+@app.before_request
+def log_request_info():
+    """Log incoming request details."""
+    logger.info(f"Request: {request.method} {request.path} from {request.remote_addr}")
+
+
 @app.route("/health", methods=["GET"])
 def health_check():
     """Health check endpoint for monitoring."""
