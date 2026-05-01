@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="hero">
+  <div class="container py-5">
+    <div class="row align-items-center g-4">
+      <div class="col-lg-6">
+        <p class="eyebrow">Personal Finance Dashboard</p>
+        <h1 class="display-5 fw-bold">Personal Expense Intelligence Analyzer</h1>
+        <p class="lead text-muted">Upload a CSV to uncover spending patterns, category breakdowns, monthly trends, and practical saving suggestions.</p>
+
+        <form class="upload-card mt-4" method="post" enctype="multipart/form-data">
+          <label class="form-label fw-semibold">Expense CSV file</label>
+          <input class="form-control form-control-lg" type="file" name="file" accept=".csv" required>
+          <button class="btn btn-primary btn-lg mt-3" type="submit">Analyze expenses</button>
+        </form>
+
+        {% if error %}
+        <div class="alert alert-danger mt-3">{{ error }}</div>
+        {% endif %}
+      </div>
+      <div class="col-lg-6">
+        <div class="dashboard-preview">
+          <div class="preview-card">
+            <span class="preview-label">Highlights</span>
+            <h2>Smart insights in seconds</h2>
+            <ul>
+              <li>Auto-categorizes missing categories</li>
+              <li>Flags wasteful spending patterns</li>
+              <li>Shows charts for category and monthly trends</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if report %}
+<section class="dashboard-section py-4">
+  <div class="container">
+    <div class="row g-3 mb-4">
+      <div class="col-md-4"><div class="metric-card"><span>Total spending</span><strong>${{ '%.2f'|format(report.total_spending) }}</strong></div></div>
+      <div class="col-md-4"><div class="metric-card"><span>Top category</span><strong>{{ report.top_category.name }}</strong></div></div>
+      <div class="col-md-4"><div class="metric-card"><span>Transactions</span><strong>{{ report.row_count }}</strong></div></div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-6">
+        <div class="panel-card">
+          <h3>Category Breakdown</h3>
+          <img class="img-fluid chart-image" src="{{ url_for('static', filename=report.category_chart) }}" alt="Category breakdown chart">
+          <div class="table-responsive mt-3">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>Category</th><th class="text-end">Amount</th></tr></thead>
+              <tbody>
+                {% for item in report.category_breakdown %}
+                <tr><td>{{ item.category }}</td><td class="text-end">${{ '%.2f'|format(item.amount) }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-6">
+        <div class="panel-card">
+          <h3>Monthly Trend</h3>
+          <img class="img-fluid chart-image" src="{{ url_for('static', filename=report.trend_chart) }}" alt="Monthly trend chart">
+          <div class="table-responsive mt-3">
+            <table class="table table-sm align-middle">
+              <thead><tr><th>Month</th><th class="text-end">Amount</th></tr></thead>
+              <tbody>
+                {% for item in report.monthly_trend %}
+                <tr><td>{{ item.month }}</td><td class="text-end">${{ '%.2f'|format(item.amount) }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="row g-4 mt-1">
+      <div class="col-lg-6">
+        <div class="panel-card">
+          <h3>Smart Insights</h3>
+          <ul class="insight-list">
+            {% for insight in report.insights %}
+            <li>{{ insight }}</li>
+            {% endfor %}
+          </ul>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="panel-card">
+          <h3>Wasteful Spending Detection</h3>
+          {% if report.wasteful_spending %}
+          <ul class="insight-list">
+            {% for item in report.wasteful_spending %}
+            <li>{{ item.category }}: ${{ '%.2f'|format(item.amount) }}</li>
+            {% endfor %}
+          </ul>
+          {% else %}
+          <p class="text-muted mb-0">No wasteful categories detected in this file.</p>
+          {% endif %}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}

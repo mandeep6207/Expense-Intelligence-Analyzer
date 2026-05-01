@@ -1,0 +1,8 @@
+.venv/
+__pycache__/
+*.pyc
+uploads/*
+!uploads/.gitkeep
+static/charts/*
+!static/charts/.gitkeep
+sample_smoke_test.csv
