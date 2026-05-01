@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block content %}
+<section class="error-section py-5">
+  <div class="container">
+    <div class="row justify-content-center">
+      <div class="col-lg-6 text-center">
+        <div class="error-card">
+          <div class="error-code">{{ error_code }}</div>
+          <h1 class="error-title">Oops! Something went wrong</h1>
+          <p class="error-message">{{ error_message }}</p>
+          
+          <div class="error-actions mt-4">
+            <a href="{{ url_for('index') }}" class="btn btn-primary btn-lg">
+              Back to Analyzer
+            </a>
+          </div>
+
+          <div class="error-details mt-4">
+            <small class="text-muted">
+              If this problem persists, please check your CSV format and try again.
+            </small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}

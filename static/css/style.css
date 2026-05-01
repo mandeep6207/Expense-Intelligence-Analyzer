@@ -81,3 +81,46 @@ body {
 .dashboard-section {
   padding-bottom: 4rem;
 }
+
+/* Error Page Styles */
+.error-section {
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(180deg, #f6f8fc 0%, #eef3f9 100%);
+}
+
+.error-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.22);
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+}
+
+.error-code {
+  font-size: 5rem;
+  font-weight: 900;
+  color: #ef4444;
+  line-height: 1;
+  margin-bottom: 1rem;
+}
+
+.error-title {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.error-message {
+  font-size: 1.1rem;
+  color: #64748b;
+  margin-bottom: 0;
+}
+
+.error-details {
+  border-top: 1px solid #e2e8f0;
+  padding-top: 1.5rem;
+}
